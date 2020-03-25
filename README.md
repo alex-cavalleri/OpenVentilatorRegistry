@@ -1,38 +1,37 @@
-# Open Ventilator Registry
-The Open Ventilator Registry project is answering [the call](https://www.nytimes.com/2020/03/22/opinion/health/ventilator-shortage-coronavirus-solution.html) to provide a cloud-based national registry of ventilators and the hospitals that need them most
-in order to facilitate their distribution during the COVID19 pandemic.  Even with a ramp up in ventilator production, there is still the significant problem 
-of their efficient distribution.  
+# Solution structure
+The Solution is divided in 3 main project types:
+ - Domain
+ - WebAPI
+ - Shared classes
 
-The Open Ventilator Registry is calling on software engineers to help build a platform for hospitals to report on their stock of ventilators and if they have a surplus
-or deficit.  Hospitals with a surplus can then send their supply to hospitals in greatest need.  We aim to create a nimble and decentralized supply chain and 
-distribution network of these life saving devices.
+## Domain
+The domain is structured in a DDD approach and here stands all the logic of a domain. All the domain logic should be done here (parameters validation, exception throwing, updates and creation of a class or a subclass)
 
-We have registered the domain www.openventilatorregistry.org and will deploy the web application there when it is ready.
+## WebAPI
+The WebAPI is the core of the applications it's structured following **CQRS** (Command-Query Responsability Segregation) pattern and it's divided in
+- Controllers
+- CommandHandlers
+- QueryHandlers
+- Repository
 
-### How to Help
+#### Controllers
+The controller is the REST API where the front be doing its stuff, no logic here, just sending commands or queries using MediatR (a library that implements Mediator layer between controllers and Commands/Queries handlers) and logging exception. The API uses Swagger (NSwag library) to document the api and to easily test the methods by going at [controllerAddress]/swagger/index.html
 
-Join our Slack channel to meet others interested in helping and learn about what's currently being worked on.  Look at the open issues, create your own if you have an idea, submit pull requests to the right projects.
+### CommandHandlers
+Here the magic happens. Everything that involves un update/save at database should happen here; and the cross-domain logic (eg: duplicated records) should be checked here, before creating and saving to the repository layer.
 
-### Central Communication Channel
+### QueryHandlers
+We got the "Q" of CQRS here. So DB queries should be done here, and should NOT update records to the database (consider a separate user with only read permissions here) and should be indipendent (even techonologically, so using a different library, like dapper) from the Command side.
 
-There have been a number of communication channels set up and we may end up using those for individual teams, but for now let's centralize around the one below and we can break out later.
+### Repository
+Here you can access to the classes stored to the Database and (optionally) mapped using an ORM (like NHibernate or EntityFramework).
 
-https://join.slack.com/t/ovr-project/shared_invite/zt-d0qld5rq-RDeKgJPyIALLeiwW05fNZA
+## Shared
+Here there's everything that needs to be shared between projects (eg: interfaces that could be implemented in different projects). 
 
-### Teams
-There are two teams: UI and Backend.  Each team has its own section within this organization.  Each team can create repos and manage their projects.
+# How to start the project
+Rebuild the project to get all the missing NuGet packages.
+Select every .API project and set it as startup project, then change from IIS to the project (without IIS :poop:). Then right click on the solution and set every .API project to start, then start the project and here you go.
 
-### Tech Stack
-
-We're open to whatever technologies will make us most effective.
-
-### Attitude
-
-Time is of the essence.  Many projects get bogged down with disagreements over technologies, coding style, frameworks,
-and methodologies.  We will not let any individual's sense of perfection get in the way of what's good enough to get the job
-done.  We believe our work will help save lives, and we want to save as many as we can.
-
-March 22nd, 2020 is day 1 of this project.  [According to some public officials, we will be in crisis in 10 days](https://www.msn.com/en-us/news/us/coronavirus-update-de-blasio-says-nyc-10-days-away-from-widespread-shortages-of-critical-medical-equipment/ar-BB11xrvg?li=BBnb7Kz).  
-
-#letsgo
-
+# Before changing anything
+Read how the project is structured and follow the patterns and the project structure.
